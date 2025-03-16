@@ -45,16 +45,22 @@ df_productos = df.groupby("Producto")["Ventas"].sum().reset_index()
 producto_mas_vendido = df_productos.sort_values(by="Ventas", ascending=False).iloc[0]
 producto_menos_vendido = df_productos.sort_values(by="Ventas", ascending=True).iloc[0]
 
-st.metric(label="🔥 Producto más vendido en la región", value=producto_mas_vendido["Producto"], delta=int(producto_mas_vendido["Ventas"]))
-st.metric(label="❄️ Producto menos vendido en la región", value=producto_menos_vendido["Producto"], delta=int(producto_menos_vendido["Ventas"]))
+col1, col2 = st.columns(2)
+with col1:
+    st.metric(label="🔥 Producto más vendido en la región", value=producto_mas_vendido["Producto"], delta=int(producto_mas_vendido["Ventas"]))
+with col2:
+    st.metric(label="❄️ Producto menos vendido en la región", value=producto_menos_vendido["Producto"], delta=int(producto_menos_vendido["Ventas"]))
 
 # Productos más y menos vendidos a nivel general
 df_productos_global = df_original.groupby("Producto")["Ventas"].sum().reset_index()
 producto_mas_vendido_global = df_productos_global.sort_values(by="Ventas", ascending=False).iloc[0]
 producto_menos_vendido_global = df_productos_global.sort_values(by="Ventas", ascending=True).iloc[0]
 
-st.metric(label="🌍 Producto más vendido a nivel nacional", value=producto_mas_vendido_global["Producto"], delta=int(producto_mas_vendido_global["Ventas"]))
-st.metric(label="🌍 Producto menos vendido a nivel nacional", value=producto_menos_vendido_global["Producto"], delta=int(producto_menos_vendido_global["Ventas"]))
+col3, col4 = st.columns(2)
+with col3:
+    st.metric(label="🌍 Producto más vendido a nivel nacional", value=producto_mas_vendido_global["Producto"], delta=int(producto_mas_vendido_global["Ventas"]))
+with col4:
+    st.metric(label="🌍 Producto menos vendido a nivel nacional", value=producto_menos_vendido_global["Producto"], delta=int(producto_menos_vendido_global["Ventas"]))
 
 # Gráfico de ventas por producto
 fig_productos = px.bar(df_productos, x="Producto", y="Ventas", title="🛒 Ventas por Producto (Región)", color="Ventas", text_auto=True)
@@ -69,4 +75,5 @@ df_vendedores = df.groupby("Vendedor")["Ventas"].sum().reset_index()
 df_vendedores = df_vendedores.sort_values(by="Ventas", ascending=False).head(10)
 fig_vendedores = px.bar(df_vendedores, x="Vendedor", y="Ventas", title="🏅 Top 10 Vendedores", color="Ventas", text_auto=True)
 st.plotly_chart(fig_vendedores, use_container_width=True)
+
 
