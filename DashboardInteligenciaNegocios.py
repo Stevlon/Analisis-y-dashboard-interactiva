@@ -9,7 +9,7 @@ st.title("📊 Dashboard de Ventas")
 @st.cache_data
 def cargar_datos():
     file_path = r"DatosDeVentasLimpios.xlsx"
-    df = pd.read_excel(file_path, sheet_name='Sheet1')
+    df = pd.read_excel(file_path, sheet_name='Ventas')
     df["Fecha"] = pd.to_datetime(df["Fecha"])
     df_enero = df[df["Fecha"].dt.month == 1]  # Filtrar enero
     return df_enero
