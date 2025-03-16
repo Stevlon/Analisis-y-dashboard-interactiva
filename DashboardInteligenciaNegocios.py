@@ -14,12 +14,16 @@ def cargar_datos():
     df_enero = df[df["Fecha"].dt.month == 1]  # Filtrar enero
     return df_enero
 
-df = cargar_datos()
+df_original = cargar_datos()
 
 # Sidebar para filtros
 st.sidebar.header("Filtros")
-region_seleccionada = st.sidebar.selectbox("Selecciona una Región", df["Region"].unique())
-df = df[df["Region"] == region_seleccionada]
+region_seleccionada = st.sidebar.selectbox("Selecciona una Región", ["Todas"] + list(df_original["Region"].unique()))
+
+if region_seleccionada == "Todas":
+    df = df_original.copy()
+else:
+    df = df_original[df_original["Region"] == region_seleccionada]
 
 # Región con más ventas
 df_region = df.groupby("Region")["Ventas"].sum().reset_index()
@@ -36,16 +40,24 @@ df_ventas_diarias = df.groupby("Fecha")["Ventas"].sum().reset_index()
 fig_ventas_dia = px.line(df_ventas_diarias, x="Fecha", y="Ventas", title="📅 Ventas por Día en Enero")
 st.plotly_chart(fig_ventas_dia, use_container_width=True)
 
-# Productos más y menos vendidos
+# Productos más y menos vendidos (Región seleccionada)
 df_productos = df.groupby("Producto")["Ventas"].sum().reset_index()
 producto_mas_vendido = df_productos.sort_values(by="Ventas", ascending=False).iloc[0]
 producto_menos_vendido = df_productos.sort_values(by="Ventas", ascending=True).iloc[0]
 
-st.metric(label="🔥 Producto más vendido", value=producto_mas_vendido["Producto"], delta=int(producto_mas_vendido["Ventas"]))
-st.metric(label="❄️ Producto menos vendido", value=producto_menos_vendido["Producto"], delta=int(producto_menos_vendido["Ventas"]))
+st.metric(label="🔥 Producto más vendido en la región", value=producto_mas_vendido["Producto"], delta=int(producto_mas_vendido["Ventas"]))
+st.metric(label="❄️ Producto menos vendido en la región", value=producto_menos_vendido["Producto"], delta=int(producto_menos_vendido["Ventas"]))
+
+# Productos más y menos vendidos a nivel general
+df_productos_global = df_original.groupby("Producto")["Ventas"].sum().reset_index()
+producto_mas_vendido_global = df_productos_global.sort_values(by="Ventas", ascending=False).iloc[0]
+producto_menos_vendido_global = df_productos_global.sort_values(by="Ventas", ascending=True).iloc[0]
+
+st.metric(label="🌍 Producto más vendido a nivel nacional", value=producto_mas_vendido_global["Producto"], delta=int(producto_mas_vendido_global["Ventas"]))
+st.metric(label="🌍 Producto menos vendido a nivel nacional", value=producto_menos_vendido_global["Producto"], delta=int(producto_menos_vendido_global["Ventas"]))
 
 # Gráfico de ventas por producto
-fig_productos = px.bar(df_productos, x="Producto", y="Ventas", title="🛒 Ventas por Producto", color="Ventas", text_auto=True)
+fig_productos = px.bar(df_productos, x="Producto", y="Ventas", title="🛒 Ventas por Producto (Región)", color="Ventas", text_auto=True)
 st.plotly_chart(fig_productos, use_container_width=True)
 
 # Distribución de precios de productos
@@ -57,3 +69,4 @@ df_vendedores = df.groupby("Vendedor")["Ventas"].sum().reset_index()
 df_vendedores = df_vendedores.sort_values(by="Ventas", ascending=False).head(10)
 fig_vendedores = px.bar(df_vendedores, x="Vendedor", y="Ventas", title="🏅 Top 10 Vendedores", color="Ventas", text_auto=True)
 st.plotly_chart(fig_vendedores, use_container_width=True)
+
